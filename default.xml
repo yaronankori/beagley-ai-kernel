@@ -13,5 +13,5 @@
   <project path="my-changes" 
            name="beagley-ai-kernel" 
            remote="mine" 
-           revision="main"/>
+           revision="master"/>
 </manifest>
