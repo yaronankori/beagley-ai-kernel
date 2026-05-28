@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="beagle" fetch="https://github.com/beagleboard"/>
+  <remote name="mine" fetch="https://github.com/yaronankori"/>
+
+  <project path="linux" 
+           name="linux" 
+           remote="beagle" 
+           revision="6.1.80-ti-arm64-r57"
+           clone-depth="1"/>
+
+  <project path="my-changes" 
+           name="beagley-ai-kernel" 
+           remote="mine" 
+           revision="main"/>
+</manifest>
