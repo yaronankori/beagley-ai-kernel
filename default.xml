@@ -6,7 +6,8 @@
   <project path="linux" 
            name="linux" 
            remote="beagle" 
-           revision="6.1.80-ti-arm64-r57"
+           upstream="refs/tags/6.1.80-ti-arm64-r57"
+	   revision="refs/tags/6.1.80-ti-arm64-r57"
            clone-depth="1"/>
 
   <project path="my-changes" 
