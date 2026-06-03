@@ -6,7 +6,7 @@
 
 #define DRIVER_NAME     "led_driver"
 #define DEVICE_NAME     "led"
-#define GPIO_LED        38
+#define GPIO_LED        439
 
 static int major;
 static struct class *led_class;
