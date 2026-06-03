@@ -162,7 +162,8 @@ static void __exit led_exit(void)
     pr_info("%s: unloaded\n", DRIVER_NAME);
 }
 
-module_init(led_init);
+//module_init(led_init);
+late_initcall(led_init);
 module_exit(led_exit);
 
 MODULE_LICENSE("GPL");
