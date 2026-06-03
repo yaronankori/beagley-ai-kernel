@@ -4,6 +4,10 @@ set -e
 echo "==> Copying localversion..."
 cp my-changes/localversion linux/
 
+echo "==> Fixing scmversion..."
+echo "" > linux/.scmversion
+
+
 echo "==> Copying .config..."
 cp my-changes/.config linux/
 
