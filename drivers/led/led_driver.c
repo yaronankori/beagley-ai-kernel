@@ -1,16 +1,18 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
-#include <linux/gpio.h>
+#include <linux/gpio/consumer.h>
 #include <linux/uaccess.h>
+#include <linux/platform_device.h>
+#include <linux/of.h>
 
 #define DRIVER_NAME     "led_driver"
 #define DEVICE_NAME     "led"
-#define GPIO_LED        439
 
 static int major;
 static struct class *led_class;
 static struct device *led_device;
+static struct gpio_desc *led_gpio;
 
 /* ============================================================
  * FOPS - open
@@ -31,7 +33,7 @@ static int led_release(struct inode *inode, struct file *file)
 }
 
 /* ============================================================
- * FOPS - read  (returns current LED state: "0\n" or "1\n")
+ * FOPS - read
  * ============================================================ */
 static ssize_t led_read(struct file *file, char __user *buf,
                         size_t count, loff_t *ppos)
@@ -42,7 +44,7 @@ static ssize_t led_read(struct file *file, char __user *buf,
     if (*ppos > 0)
         return 0;
 
-    val = gpio_get_value(GPIO_LED);
+    val = gpiod_get_value(led_gpio);
     snprintf(state, sizeof(state), "%d\n", val);
 
     if (copy_to_user(buf, state, 2))
@@ -53,7 +55,7 @@ static ssize_t led_read(struct file *file, char __user *buf,
 }
 
 /* ============================================================
- * FOPS - write  (write "1" to turn ON, "0" to turn OFF)
+ * FOPS - write
  * ============================================================ */
 static ssize_t led_write(struct file *file, const char __user *buf,
                          size_t count, loff_t *ppos)
@@ -67,10 +69,10 @@ static ssize_t led_write(struct file *file, const char __user *buf,
         return -EFAULT;
 
     if (kbuf[0] == '1') {
-        gpio_set_value(GPIO_LED, 1);
+        gpiod_set_value(led_gpio, 1);
         pr_info("%s: LED ON\n", DRIVER_NAME);
     } else if (kbuf[0] == '0') {
-        gpio_set_value(GPIO_LED, 0);
+        gpiod_set_value(led_gpio, 0);
         pr_info("%s: LED OFF\n", DRIVER_NAME);
     } else {
         pr_warn("%s: invalid value, use 0 or 1\n", DRIVER_NAME);
@@ -92,80 +94,87 @@ static const struct file_operations led_fops = {
 };
 
 /* ============================================================
- * Module init
+ * Platform driver probe — called by kernel when
+ * "beagley,led" is found in device tree
  * ============================================================ */
-static int __init led_init(void)
+static int led_probe(struct platform_device *pdev)
 {
     int ret;
 
-    /* 1. Request GPIO */
-    ret = gpio_request(GPIO_LED, DRIVER_NAME);
-    if (ret) {
-        pr_err("%s: failed to request GPIO %d\n", DRIVER_NAME, GPIO_LED);
-        return ret;
+    /* 1. Get GPIO from device tree */
+    led_gpio = devm_gpiod_get(&pdev->dev, NULL, GPIOD_OUT_LOW);
+    if (IS_ERR(led_gpio)) {
+        dev_err(&pdev->dev, "failed to get GPIO from DT\n");
+        return PTR_ERR(led_gpio);
     }
 
-    /* 2. Set GPIO as output, initial value 0 (OFF) */
-    ret = gpio_direction_output(GPIO_LED, 0);
-    if (ret) {
-        pr_err("%s: failed to set GPIO direction\n", DRIVER_NAME);
-        goto err_gpio;
-    }
-
-    /* 3. Register char device */
+    /* 2. Register char device */
     major = register_chrdev(0, DEVICE_NAME, &led_fops);
     if (major < 0) {
-        pr_err("%s: failed to register char device\n", DRIVER_NAME);
-        ret = major;
-        goto err_gpio;
+        dev_err(&pdev->dev, "failed to register char device\n");
+        return major;
     }
 
-    /* 4. Create device class */
+    /* 3. Create device class */
     led_class = class_create(THIS_MODULE, DEVICE_NAME);
     if (IS_ERR(led_class)) {
-        pr_err("%s: failed to create class\n", DRIVER_NAME);
         ret = PTR_ERR(led_class);
         goto err_chrdev;
     }
 
-    /* 5. Create device node /dev/led */
+    /* 4. Create /dev/led */
     led_device = device_create(led_class, NULL, MKDEV(major, 0), NULL, DEVICE_NAME);
     if (IS_ERR(led_device)) {
-        pr_err("%s: failed to create device\n", DRIVER_NAME);
         ret = PTR_ERR(led_device);
         goto err_class;
     }
 
-    pr_info("%s: loaded! GPIO=%d major=%d /dev/%s ready\n",
-            DRIVER_NAME, GPIO_LED, major, DEVICE_NAME);
+    dev_info(&pdev->dev, "loaded! /dev/%s ready\n", DEVICE_NAME);
     return 0;
 
 err_class:
     class_destroy(led_class);
 err_chrdev:
     unregister_chrdev(major, DEVICE_NAME);
-err_gpio:
-    gpio_free(GPIO_LED);
     return ret;
 }
 
 /* ============================================================
- * Module exit
+ * Platform driver remove — called when device is removed
  * ============================================================ */
-static void __exit led_exit(void)
+static int led_remove(struct platform_device *pdev)
 {
     device_destroy(led_class, MKDEV(major, 0));
     class_destroy(led_class);
     unregister_chrdev(major, DEVICE_NAME);
-    gpio_set_value(GPIO_LED, 0);
-    gpio_free(GPIO_LED);
-    pr_info("%s: unloaded\n", DRIVER_NAME);
+    gpiod_set_value(led_gpio, 0);
+    dev_info(&pdev->dev, "unloaded\n");
+    return 0;
 }
 
-//module_init(led_init);
-late_initcall(led_init);
-module_exit(led_exit);
+/* ============================================================
+ * Device tree match table
+ * ============================================================ */
+static const struct of_device_id led_of_match[] = {
+    { .compatible = "beagley,led" },  /* matches DTS compatible string */
+    { }
+};
+MODULE_DEVICE_TABLE(of, led_of_match);
+
+/* ============================================================
+ * Platform driver structure
+ * ============================================================ */
+static struct platform_driver led_platform_driver = {
+    .probe  = led_probe,
+    .remove = led_remove,
+    .driver = {
+        .name           = DRIVER_NAME,
+        .of_match_table = led_of_match,
+    },
+};
+
+module_platform_driver(led_platform_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("yarona");
-MODULE_DESCRIPTION("LED GPIO driver for BeagleY-AI pin 7 (GPIO4)");
+MODULE_DESCRIPTION("BeagleY-AI LED platform driver using device tree");
