@@ -23,6 +23,11 @@ echo "==> Flashing Modules..."
 sudo rm -rf $ROOTFS/lib/modules/$KERNEL_VERSION
 sudo cp -a $MODULES/lib/modules/$KERNEL_VERSION $ROOTFS/lib/modules/
 
+echo "==> Flashing U-Boot..."
+sudo cp ~/beagley-workspace/u-boot/uboot-build/r5/tiboot3-j722s-hs-fs-evm.bin /media/yarona/BOOT/tiboot3.bin
+sudo cp ~/beagley-workspace/u-boot/uboot-build/a53/tispl.bin /media/yarona/BOOT/tispl.bin
+sudo cp ~/beagley-workspace/u-boot/uboot-build/a53/u-boot.img /media/yarona/BOOT/u-boot.img
+
 echo "==> Syncing..."
 sync
 
