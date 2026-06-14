@@ -2,16 +2,29 @@
 <manifest>
   <remote name="beagle" fetch="https://github.com/beagleboard"/>
   <remote name="mine" fetch="https://github.com/yaronankori"/>
+  <remote name="ti-firmware" fetch="https://github.com/TexasInstruments"/>
 
-  <project path="linux" 
-           name="linux" 
-           remote="beagle" 
+  <project path="linux"
+           name="linux"
+           remote="beagle"
            upstream="refs/tags/6.1.80-ti-arm64-r57"
-	   revision="refs/tags/6.1.80-ti-arm64-r57"
+           revision="refs/tags/6.1.80-ti-arm64-r57"
            clone-depth="1"/>
 
-  <project path="my-changes" 
-           name="beagley-ai-kernel" 
-           remote="mine" 
+  <project path="u-boot"
+           name="u-boot"
+           remote="beagle"
+           revision="v2026.01-Beagle"
+           clone-depth="1"/>
+
+  <project path="ti-linux-firmware"
+           name="ti-linux-firmware"
+           remote="ti-firmware"
+           revision="ti-linux-firmware"
+           clone-depth="1"/>
+
+  <project path="my-changes"
+           name="beagley-ai-kernel"
+           remote="mine"
            revision="master"/>
 </manifest>
