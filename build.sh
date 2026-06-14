@@ -76,8 +76,8 @@ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- \
 make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- \
     O=uboot-build/a53 \
     BINMAN_INDIRS=$(pwd) \
-    BL31=prebuilt/bl31.bin \
-    TEE=prebuilt/tee-pager_v2.bin \
+    BL31=$(pwd)/prebuilt/bl31.bin \
+    TEE=$(pwd)/prebuilt/tee-pager_v2.bin \
     -C u-boot -j$(nproc)
 
 echo "==> Done! Files ready:"
