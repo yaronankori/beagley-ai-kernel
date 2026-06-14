@@ -55,6 +55,14 @@ make -C linux ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
 # ================================================
 # U-Boot build
 # ================================================
+# ================================================
+# U-Boot preparation  ← MUST BE BEFORE U-Boot build!
+# ================================================
+echo "==> Setting up prebuilt binaries..."
+mkdir -p prebuilt
+cp my-changes/prebuilt/bl31.bin prebuilt/
+cp my-changes/prebuilt/tee-pager_v2.bin prebuilt/
+
 echo "==> Setting up U-Boot firmware structure..."
 mkdir -p ti-sysfw ti-dm
 cp -r ti-linux-firmware/ti-sysfw/* ti-sysfw/
