@@ -1,0 +1,7 @@
+drivers/led/.*.cmd
+drivers/led/*.ko
+drivers/led/*.o
+drivers/led/*.mod
+drivers/led/*.mod.c
+drivers/led/Module.symvers
+drivers/led/modules.order
