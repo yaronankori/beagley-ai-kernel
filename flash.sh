@@ -31,7 +31,16 @@ sudo cp ~/beagley-workspace/u-boot/uboot-build/a53/u-boot.img /media/yarona/BOOT
 echo "==> Syncing..."
 sync
 
+#echo "==> Ejecting SD card..."
+#sudo eject /dev/sdh
 echo "==> Ejecting SD card..."
-sudo eject /dev/sdf
+SD_DEVICE=$(findmnt -n -o SOURCE --target /media/yarona/BOOT | head -1 | sed 's/[0-9]*$//')
+if [ -n "$SD_DEVICE" ]; then
+    sudo eject "$SD_DEVICE"
+    echo "==> Ejected $SD_DEVICE"
+else
+    echo "==> WARNING: Could not find SD card device, please eject manually"
+fi
+
 
 echo "==> Done! You can now boot the BeagleY-AI"
