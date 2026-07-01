@@ -1,0 +1,1 @@
+cmd_/home/yarona/my-beagley-changes/kernel-modules/led_driver/modules.order := {   echo /home/yarona/my-beagley-changes/kernel-modules/led_driver/led_driver.ko; :; } > /home/yarona/my-beagley-changes/kernel-modules/led_driver/modules.order

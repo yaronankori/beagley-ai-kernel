@@ -1,0 +1,1 @@
+cmd_/home/yarona/my-beagley-changes/kernel-modules/hello_world/modules.order := {   echo /home/yarona/my-beagley-changes/kernel-modules/hello_world/hello_world.ko; :; } > /home/yarona/my-beagley-changes/kernel-modules/hello_world/modules.order

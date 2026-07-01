@@ -1,0 +1,1 @@
+cmd_/home/yarona/my-beagley-changes/kernel-modules/hello_world/Module.symvers :=  sed 's/ko$$/o/'  /home/yarona/my-beagley-changes/kernel-modules/hello_world/modules.order | scripts/mod/modpost -m      -o /home/yarona/my-beagley-changes/kernel-modules/hello_world/Module.symvers -e -i Module.symvers -T - 

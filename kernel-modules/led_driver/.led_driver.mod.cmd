@@ -1,0 +1,1 @@
+cmd_/home/yarona/my-beagley-changes/kernel-modules/led_driver/led_driver.mod := printf '%s\n'   led_driver.o | awk '!x[$$0]++ { print("/home/yarona/my-beagley-changes/kernel-modules/led_driver/"$$0) }' > /home/yarona/my-beagley-changes/kernel-modules/led_driver/led_driver.mod

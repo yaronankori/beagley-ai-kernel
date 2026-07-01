@@ -1,0 +1,1 @@
+cmd_/home/yarona/my-beagley-changes/kernel-modules/hello_world/hello_world.mod := printf '%s\n'   hello_world.o | awk '!x[$$0]++ { print("/home/yarona/my-beagley-changes/kernel-modules/hello_world/"$$0) }' > /home/yarona/my-beagley-changes/kernel-modules/hello_world/hello_world.mod
